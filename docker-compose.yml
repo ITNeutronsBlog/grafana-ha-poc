@@ -1,6 +1,7 @@
 version: "3"
 volumes:
-  db_data:
+  db_data1:
+  db_data2:
 networks:
   monitor:
     driver: bridge
@@ -17,12 +18,13 @@ services:
     depends_on:
       - grafana1
       - grafana2
-  grafana-db:
-    container_name: grafana-db
+  # Postgres 1
+  postgres1:
+    container_name: postgres1
     image: postgres:12-alpine
     restart: unless-stopped
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data1:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: grafana123
       POSTGRES_USER: grafana
@@ -30,6 +32,22 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     networks:
       - monitor
+  # Postgres 2 
+  postgres2:
+    container_name: postgres2
+    image: postgres:12-alpine
+    restart: unless-stopped
+    volumes:
+      - db_data2:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: grafana123
+      POSTGRES_USER: grafana
+      POSTGRES_DB: grafana
+      PGDATA: /var/lib/postgresql/data/pgdata
+    networks:
+      - monitor
+
+  # Grafana 1 
   grafana1:
     container_name: grafana1
     image: grafana/grafana:latest
@@ -40,9 +58,10 @@ services:
     volumes:
       - ./plugins:/var/lib/grafana/plugins
       - ./conf/grafana.ini:/etc/grafana/grafana.ini
-    depends_on:
-      - grafana-db
+    environment:
+      GF_DATABASE_URL: postgres://grafana:grafana123@postgres1:5432/grafana  # Connects to primary instance (postgres1)
 
+  # Grafana 2 
   grafana2:
     container_name: grafana2
     image: grafana/grafana:latest
@@ -53,5 +72,5 @@ services:
     volumes:
       - ./plugins:/var/lib/grafana/plugins
       - ./conf/grafana.ini:/etc/grafana/grafana.ini
-    depends_on:
-      - grafana-db
+    environment:
+      GF_DATABASE_URL: postgres://grafana:grafana123@postgres2:5432/grafana  # Connects to replica (postgres2)
