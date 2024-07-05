@@ -9,7 +9,7 @@ It uses Docker volumes for persistent data storage and a custom network for inte
 - docker
 - docker-compose
 
-# Deploy Instructions:
+### Deploy Instructions:
 ```bash
 docker compose up -d
 ```
