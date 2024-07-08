@@ -57,8 +57,7 @@ services:
       - ./grafana/config/grafana.ini:/etc/grafana/grafana.ini
       - grafana-node-1-data:/var/lib/grafana
     depends_on:
-      - postgres-node-1
-      - postgres-node-2
+      - haproxy
 
   grafana-node-2:
     container_name: grafana-node-2
@@ -72,8 +71,7 @@ services:
       - ./grafana/config/grafana.ini:/etc/grafana/grafana.ini
       - grafana-node-2-data:/var/lib/grafana
     depends_on:
-      - postgres-node-1
-      - postgres-node-2
+      - haproxy
 
   nginx:
     image: nginx:latest
@@ -84,6 +82,16 @@ services:
     depends_on:
       - grafana-node-1
       - grafana-node-2
+
+  haproxy:
+    image: haproxy:latest
+    ports:
+      - "5434:5432"
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    depends_on:
+      - postgres-node-1
+      - postgres-node-2
 
 volumes:
   postgres-node-1-data:
