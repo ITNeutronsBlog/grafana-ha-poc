@@ -20,4 +20,4 @@ Go to [localhost:8080](http://localhost:8080) on your browser.
 Initial grafana sign in details:
 |Username|Password|
 |--------|:------:|
-|admin   | admin123  |
+|admin   | admin  |
